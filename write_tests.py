@@ -8,6 +8,8 @@ from pathlib import Path
 from dstauffman import list_python_files, read_text_file, setup_dir, write_text_file
 from slog import ReturnCodes
 
+from make_init import get_python_definitions
+
 
 # %% Functions - parse_write_tests
 def parse_write_tests(input_args: list[str]) -> argparse.Namespace:
@@ -93,64 +95,6 @@ def execute_write_tests(args: argparse.Namespace) -> int:
         add_classification=add_class,
     )
     return ReturnCodes.clean
-
-
-# %% Functions - get_python_definitions
-def get_python_definitions(text: str, *, include_private: bool = False) -> list[str]:  # noqa: C901
-    r"""
-    Get all public class and def names from the text of the file.
-
-    Parameters
-    ----------
-    text : str
-        The text of the python file
-
-    Returns
-    -------
-    funcs : array_like, str
-        List of functions within the text of the python file
-
-    Examples
-    --------
-    >>> text = "def a():\n    pass\n"
-    >>> funcs = get_python_definitions(text)
-    >>> print(funcs)
-    ['a']
-
-    """
-    cap_letters = frozenset("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
-    extended_letters = frozenset(cap_letters & {"_"})
-    assert len(cap_letters) == 26
-    funcs: list[str] = []
-    skip_next = False
-    skip_strs = False
-    for line in text.split("\n"):
-        # check for @overload function definitions and skip them
-        if skip_next:
-            skip_next = False
-            continue
-        if skip_strs:
-            if line.endswith('"""'):
-                skip_strs = False
-            continue
-        if line == "@overload":
-            skip_next = True
-            continue
-        if line.startswith('r"""') or line.startswith('"""'):
-            skip_strs = True
-        if line.startswith("class ") and (include_private or not line.startswith("class _")):
-            temp = line[len("class ") :].split("(")
-            temp = temp[0].split(":")  # for classes without arguments
-            funcs.append(temp[0])
-        if line.startswith("def ") and (include_private or not line.startswith("def _")):
-            temp = line[len("def ") :].split("(")
-            temp = temp[0].split(":")  # for functions without arguments
-            funcs.append(temp[0])
-        if len(line) > 0 and line[0] in cap_letters and "=" in line and " " in line:
-            temp2 = line.split(" ")[0].split(":")[0]
-            if len(extended_letters - set(temp2)) == 0:
-                funcs.append(temp2)
-    return funcs
 
 
 # %% write_unit_test_templates
