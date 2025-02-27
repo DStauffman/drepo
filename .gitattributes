@@ -1,0 +1,23 @@
+# for users who don't have core.autocrlf set
+* text=auto
+
+# known text extensions
+*.py text diff=python merge
+*.gitattributes text
+*.gitignore text
+*.md text
+*.toml text
+*.txt text
+
+# Windows specific files to always have CRLF
+*.bat text eol=crlf
+
+# Unix files to always have LF
+*.sh text eol=lf
+
+# known binary files to not modify
+*.pyc binary
+
+# files to ignore when creating zip file for download
+/.gitattributes export-ignore
+/.gitignore export-ignore
