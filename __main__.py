@@ -97,7 +97,7 @@ def parse_help(input_args: list[str]) -> argparse.Namespace:
     Namespace()
 
     """
-    parser = argparse.ArgumentParser(prog="dcs help")
+    parser = argparse.ArgumentParser(prog="help")
 
     args = parser.parse_args(input_args)
     return args
@@ -126,7 +126,7 @@ def parse_version(input_args: list[str]) -> argparse.Namespace:
     Namespace()
 
     """
-    parser = argparse.ArgumentParser(prog="dcs version")
+    parser = argparse.ArgumentParser(prog="version")
 
     args = parser.parse_args(input_args)
     return args
@@ -190,7 +190,7 @@ def parse_wrapper(args: list[str]) -> tuple[str, argparse.Namespace]:
         command = args[0]
     else:
         command = "help"
-    # check for alternative forms of help with the base dcs command
+    # check for alternative forms of help with the base drepo command
     if command in {"--help", "-h"}:
         command = "help"
     elif command in {"--version", "-v"}:
