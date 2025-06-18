@@ -8,7 +8,7 @@ from pathlib import Path
 from dstauffman import list_python_files, read_text_file, setup_dir, write_text_file
 from slog import ReturnCodes
 
-from make_init import get_python_definitions
+from drepo.make_init import get_python_definitions
 
 
 # %% Functions - parse_write_tests
@@ -188,7 +188,7 @@ def write_unit_test_templates(
         import_text = "import " + this_repo
         if this_repo in _subs:
             import_text += " as " + _subs[this_repo]
-        text += [import_text, ""]
+        text += [import_text, "", ""]
         for func in funcs:
             if func.startswith("_"):
                 func = names[-1][:-3] + "." + func
@@ -196,7 +196,7 @@ def write_unit_test_templates(
             temp_name = func_name.replace(".", "_")
             text += [f"# %% {func_name}", f"class Test_{temp_name}(unittest.TestCase):", '    r"""']
             text += [f"    Tests the {func_name} function with the following cases:", "        TBD"]
-            text += ['    """', "    pass  # TODO: write this", ""]
+            text += ['    """', "", "    pass  # TODO: write this", "", ""]
 
         text += ["# %% Unit test execution", 'if __name__ == "__main__":', "    unittest.main(exit=False)", ""]
         new_file = Path.joinpath(output, "test_" + "_".join(names))

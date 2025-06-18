@@ -1,4 +1,4 @@
-"""Script wrapper to execute any of the scripts within this repo."""
+"""High level API functions."""
 
 # %% Imports
 import argparse
@@ -7,11 +7,11 @@ import sys
 
 from slog import ReturnCodes
 
-from delete_pyc import execute_delete_pyc, parse_delete_pyc
-from enforce import execute_enforce, parse_enforce
-from make_init import execute_make_init, parse_make_init
-from write_tests import execute_write_tests, parse_write_tests
-from version import version_info
+from drepo.delete_pyc import execute_delete_pyc, parse_delete_pyc
+from drepo.enforce import execute_enforce, parse_enforce
+from drepo.make_init import execute_make_init, parse_make_init
+from drepo.write_tests import execute_write_tests, parse_write_tests
+from drepo.version import version_info
 
 
 # %% Constants
@@ -40,7 +40,7 @@ def print_help(help_file: Path | None = None) -> int:
 
     """
     if help_file is None:
-        help_file = Path(__file__).resolve().parent / "README.md"
+        help_file = Path(__file__).resolve().parent.parent / "README.md"
     if not help_file.is_file():
         print(f'Warning: help file at "{help_file}" was not found.')
         return ReturnCodes.bad_help_file
@@ -265,4 +265,13 @@ def main() -> int:
 
 
 # %% Script
-rc = main()
+if __name__ == "__main__":
+    args = parse_help(sys.argv[1:])
+    print(args)
+    try:
+        rc = execute_help(args)
+    except Exception as e:
+        print(f"Error: {e}")
+        sys.exit(ReturnCodes.bad_command)
+    else:
+        sys.exit(rc)
