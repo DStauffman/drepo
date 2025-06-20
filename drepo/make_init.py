@@ -4,8 +4,7 @@
 import argparse
 from pathlib import Path
 
-from dstauffman import line_wrap, read_text_file, write_text_file
-from slog import ReturnCodes
+from slog import is_dunder, line_wrap, read_text_file, ReturnCodes, write_text_file
 
 
 # %% Functions - parse_make_init
@@ -25,15 +24,14 @@ def parse_make_init(input_args: list[str]) -> argparse.Namespace:
 
     Examples
     --------
+    >>> from drepo import parse_make_init
     >>> input_args = ["-l", "."]
     >>> args = parse_make_init(input_args)
     >>> print(args)  # doctest: +ELLIPSIS
     Namespace(folder='...', lineup=True, wrap=100, dry_run=False, outfile='__init__.py')
 
     """
-    parser = argparse.ArgumentParser(
-        prog="make_init", description="Make a python __init__.py" + "file for the given folder."
-    )
+    parser = argparse.ArgumentParser(prog="make_init", description="Make a python __init__.py" + "file for the given folder.")
 
     parser.add_argument("folder", help="Folder to search for source files")
     parser.add_argument("-l", "--lineup", help="Lines up the imports between files.", action="store_true")
@@ -64,6 +62,7 @@ def execute_make_init(args: argparse.Namespace) -> int:
 
     Examples
     --------
+    >>> from drepo import execute_make_init
     >>> from argparse import Namespace
     >>> args = Namespace(dry_run=False, folder=".", outfile='__init__.py', lineup=True, wrap=100)
     >>> return_code = execute_make_init(args)  # doctest: +SKIP
@@ -104,6 +103,7 @@ def get_python_definitions(text: str, *, include_private: bool = False) -> list[
 
     Examples
     --------
+    >>> from drepo import get_python_definitions
     >>> text = "def a():\n    pass\n"
     >>> funcs = get_python_definitions(text)
     >>> print(funcs)
@@ -128,7 +128,8 @@ def get_python_definitions(text: str, *, include_private: bool = False) -> list[
         if line == "@overload":
             skip_next = True
             continue
-        if line.startswith('r"""') or line.startswith('"""'):
+        sline = line.strip()
+        if (sline.startswith('r"""') or sline.startswith('"""')) and not sline[3:].endswith('"""'):
             skip_strs = True
         if line.startswith("class ") and (include_private or not line.startswith("class _")):
             temp = line[len("class ") :].split("(")
@@ -168,11 +169,11 @@ def make_python_init(folder: Path, *, lineup: bool = True, wrap: int = 100, file
 
     Examples
     --------
-    >>> from pathlib import Path
-    >>> folder = Path(".").resolve()
+    >>> from drepo import make_python_init, get_root_dir
+    >>> folder = get_root_dir()
     >>> text = make_python_init(folder)
-    >>> print(text[0:22])
-    from .binary    import
+    >>> print(text[0:24])
+    from .api         import
 
     """
     # exclusions
@@ -204,7 +205,7 @@ def make_python_init(folder: Path, *, lineup: bool = True, wrap: int = 100, file
         print("Duplicated functions:")
         print(dups)
     # get information about padding
-    max_len = max(len(x) for x in results)
+    max_len = max(len(x) for x in results) if bool(results) else 0
     indent = len("from . import ") + max_len + 4
     # start building text output
     text: list[str] = []
@@ -228,6 +229,7 @@ def make_python_init(folder: Path, *, lineup: bool = True, wrap: int = 100, file
 # %% Script
 if __name__ == "__main__":
     import sys
+
     args = parse_make_init(sys.argv[1:])
     try:
         rc = execute_make_init(args)

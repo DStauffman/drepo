@@ -8,8 +8,9 @@ Eventually, this repo code was split off to be more reusable, and not be a runti
 
 # %% Imports
 # fmt: off
-from .api         import print_help, print_version, parse_help, parse_version, execute_help, \
-                             execute_version, parse_wrapper, parse_commands, execute_command, main
+from .api         import get_root_dir, print_help, print_version, parse_help, parse_version, \
+                             execute_help, execute_version, parse_wrapper, parse_commands, \
+                             execute_command, main
 from .delete_pyc  import parse_delete_pyc, execute_delete_pyc, delete_pyc
 from .enforce     import parse_enforce, execute_enforce, find_repo_issues
 from .make_init   import parse_make_init, execute_make_init, get_python_definitions, make_python_init

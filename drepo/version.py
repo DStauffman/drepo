@@ -14,7 +14,9 @@ version_info = (0, 1, 0)
 
 data = """Feb 26, 2025: drepo 0.0
 Jun 18, 2025: drepo 0.1
+Jun 20, 2025: drepo 0.2
 """
 
 # Historical notes:
-# v1.0 Moved most of the capability out of the dstauffman repo.
+# v0.1 Moved most of the capability out of the dstauffman repo.
+# v0.2 Removed dependency on dstauffman and only uses core python.

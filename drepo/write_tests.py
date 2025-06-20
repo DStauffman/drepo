@@ -3,12 +3,15 @@
 # %% Imports
 import argparse
 import datetime
+import logging
 from pathlib import Path
 
-from dstauffman import list_python_files, read_text_file, setup_dir, write_text_file
-from slog import ReturnCodes
+from slog import activate_logging, list_python_files, LogLevel, read_text_file, ReturnCodes, wipe_dir, write_text_file
 
 from drepo.make_init import get_python_definitions
+
+# %% Globals
+logger = logging.getLogger(__name__)
 
 
 # %% Functions - parse_write_tests
@@ -28,15 +31,14 @@ def parse_write_tests(input_args: list[str]) -> argparse.Namespace:
 
     Examples
     --------
+    >>> from drepo import parse_write_tests
     >>> input_args = ["."]
     >>> args = parse_write_tests(input_args)
     >>> print(args)
-    Namespace(folder='.', lineup=True, wrap=100, dry_run=False, outfile='__init__.py')
+    Namespace(folder='.', author='unknown', exclude=None, recursive=False, subs=None, classification=False, output='tests', log_level=None)
 
     """
-    parser = argparse.ArgumentParser(
-        prog="write_tests", description="Make a python __init__.py" + "file for the given folder."
-    )
+    parser = argparse.ArgumentParser(prog="write_tests", description="Make a python __init__.py" + "file for the given folder.")
 
     parser.add_argument("folder", help="Folder to search for source files")
     parser.add_argument("-a", "--author", nargs="?", default="unknown", help="Author of the test files.")
@@ -44,9 +46,8 @@ def parse_write_tests(input_args: list[str]) -> argparse.Namespace:
     parser.add_argument("-r", "--recursive", help="Show what would be copied without doing it", action="store_true")
     parser.add_argument("-s", "--subs", help="Strings to substitute, separated by commas", action="append")
     parser.add_argument("-c", "--classification", help="Add a classification header to each file", action="store_true")
-    parser.add_argument(
-        "-o", "--output", nargs="?", default="tests", help="Output folder to produce, default is tests"
-    )
+    parser.add_argument("-o", "--output", nargs="?", default="tests", help="Output folder to produce, default is tests")
+    parser.add_argument("--log-level", type=int, nargs="?", default=None, help="Logging Level, from 0-10")
 
     args = parser.parse_args(input_args)
     return args
@@ -69,8 +70,9 @@ def execute_write_tests(args: argparse.Namespace) -> int:
 
     Examples
     --------
+    >>> from drepo import execute_write_tests
     >>> from argparse import Namespace
-    >>> args = Namespace(folder=".", author="David C. Stauffer", exclude=None, recursive=False, ...
+    >>> args = Namespace(folder=".", author="David C. Stauffer", exclude=None, recursive=False, \
     ...     subs=None, classification=False, output="tests")
     >>> return_code = execute_write_tests(args)  # doctest: +SKIP
 
@@ -79,13 +81,13 @@ def execute_write_tests(args: argparse.Namespace) -> int:
     folder    = Path(args.folder).resolve()
     output    = Path(args.output).resolve()
     author    = args.author
-    exclude   = args.exclude
+    exclude   = tuple(Path(x) for x in args.exclude)
     recursive = args.recursive
     repo_subs = {s.split(",")[0]: s.split(",")[1] for s in args.subs} if args.subs is not None else None
     add_class = args.classification
     # fmt: on
 
-    output = write_unit_test_templates(
+    write_unit_test_templates(
         folder,
         output,
         author=author,
@@ -134,11 +136,11 @@ def write_unit_test_templates(
 
     Examples
     --------
-    >>> from pathlib import Path
-    >>> folder = Path(".").resolve()
+    >>> from drepo import write_unit_test_templates, get_root_dir
+    >>> folder = get_root_dir()
     >>> output = folder.joinpath("test_template")
     >>> author = "David C. Stauffer"
-    >>> exclude = get_tests_dir()  # can also be tuple of exclusions
+    >>> exclude = get_root_dir().joinpath("tests")  # can also be tuple of exclusions
     >>> write_unit_test_templates(folder, output, author=author, exclude=exclude)  # doctest: +SKIP
 
     """
@@ -154,7 +156,7 @@ def write_unit_test_templates(
     if repo_subs is not None:
         _subs.update(repo_subs)
     # create the output location
-    setup_dir(output)
+    wipe_dir(output)  # TODO: should this wipe the folder?
     # get all the files
     files = list_python_files(folder, recursive=recursive)
     # save the starting point in the name
@@ -167,7 +169,13 @@ def write_unit_test_templates(
     year = now.strftime("%Y")
     for file in files:
         # check for exclusions
-        if exclude is not None and exclude in file.parents or output in file.parents:
+        if exclude is not None:
+            if isinstance(exclude, Path):
+                if exclude in file.parents:
+                    continue
+            elif any(e in file.parents for e in exclude):
+                continue
+        if output in file.parents:
             continue
         # read the contents of the file
         this_text = read_text_file(file)
@@ -200,16 +208,18 @@ def write_unit_test_templates(
 
         text += ["# %% Unit test execution", 'if __name__ == "__main__":', "    unittest.main(exit=False)", ""]
         new_file = Path.joinpath(output, "test_" + "_".join(names))
-        print(f'Writing: "{new_file}".')
+        logger.log(LogLevel.L8, f'Writing: "{new_file}".')
         write_text_file(new_file, "\n".join(text))
 
 
 # %% Script
 if __name__ == "__main__":
     import sys
+
     args = parse_write_tests(sys.argv[1:])
-    print(args)
-    rc = execute_write_tests(args)
+    if args.log_level is not None:
+        log_level = getattr(LogLevel, f"L{args.log_level}")
+        activate_logging(log_level)
     try:
         rc = execute_write_tests(args)
     except Exception as e:

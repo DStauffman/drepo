@@ -7,11 +7,10 @@ Notes
 """
 
 # %% Imports
-from pathlib import Path
 import unittest
 from unittest.mock import patch
 
-from slog import capture_output
+from slog import LogLevel
 
 import drepo as dr
 
@@ -44,7 +43,7 @@ class Test_write_unit_test_templates(unittest.TestCase):
     """
 
     def setUp(self) -> None:
-        self.folder = Path(__file__).resolve().parent
+        self.folder = dr.get_root_dir()
         self.output = self.folder.joinpath("tests_template")
         self.author = "David C. Stauffer"
         self.exclude = self.folder.joinpath("tests")
@@ -52,13 +51,12 @@ class Test_write_unit_test_templates(unittest.TestCase):
     def test_nominal(self) -> None:
         with patch("drepo.write_tests.write_text_file") as mock_writer:
             with patch("drepo.write_tests.setup_dir") as mock_dir:
-                with capture_output() as ctx:
+                with patch("drepo.write_tests.logger") as mock_logger:
                     dr.write_unit_test_templates(self.folder, self.output, author=self.author, exclude=self.exclude)
-                lines = ctx.get_output().split("\n")
-                ctx.close()
-                self.assertEqual(mock_dir.call_count, 1)
-        self.assertGreater(len(lines), 5)
-        self.assertTrue(lines[0].startswith("Writing: "))
+        self.assertEqual(mock_dir.call_count, 1)
+        self.assertGreater(mock_logger.log.call_count, 5)
+        self.assertEqual(mock_logger.log.call_args_list[0].args[0], LogLevel.L8)
+        self.assertTrue(mock_logger.log.call_args_list[0].args[1].startswith("Writing: "))
         self.assertGreater(mock_writer.call_count, 5)
 
 

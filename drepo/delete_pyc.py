@@ -24,15 +24,14 @@ def parse_delete_pyc(input_args: list[str]) -> argparse.Namespace:
 
     Examples
     --------
+    >>> from drepo import parse_delete_pyc
     >>> input_args = ["-r","-p", "."]
     >>> args = parse_delete_pyc(input_args)
     >>> print(args)
     Namespace(folder='.', recursive=True, print=True)
 
     """
-    parser = argparse.ArgumentParser(
-        prog="delete_pyc", description="Delete all the Python *.pyc files in the given folder."
-    )
+    parser = argparse.ArgumentParser(prog="delete_pyc", description="Delete all the Python *.pyc files in the given folder.")
 
     parser.add_argument("folder", help="Folder to search for source files")
     parser.add_argument("-r", "--recursive", help="Delete files recursively.", action="store_true")
@@ -59,6 +58,7 @@ def execute_delete_pyc(args: argparse.Namespace) -> int:
 
     Examples
     --------
+    >>> from drepo import execute_delete_pyc
     >>> from argparse import Namespace
     >>> args = Namespace(folder=".", recursive=False, print=True)
     >>> return_code = execute_delete_pyc(args)  # doctest: +SKIP
@@ -90,8 +90,8 @@ def delete_pyc(folder: Path, recursive: bool = True, *, print_progress: bool = T
 
     Examples
     --------
-    >>> from pathlib import Path
-    >>> folder = Path(".").resolve()
+    >>> from drepo import delete_pyc, get_root_dir
+    >>> folder = get_root_dir()
     >>> delete_pyc(folder, print_progress=False)  # doctest: +SKIP
 
     """
@@ -123,6 +123,7 @@ def delete_pyc(folder: Path, recursive: bool = True, *, print_progress: bool = T
 # %% Script
 if __name__ == "__main__":
     import sys
+
     args = parse_delete_pyc(sys.argv[1:])
     try:
         rc = execute_delete_pyc(args)

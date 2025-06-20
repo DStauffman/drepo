@@ -2,8 +2,8 @@
 
 # %% Imports
 import argparse
-from pathlib import Path
 import os
+from pathlib import Path
 
 from slog import ReturnCodes
 
@@ -25,6 +25,7 @@ def parse_enforce(input_args: list[str]) -> argparse.Namespace:
 
     Examples
     --------
+    >>> from drepo import parse_enforce
     >>> input_args = ["."]
     >>> args = parse_enforce(input_args)
     >>> print(args)
@@ -71,6 +72,7 @@ def execute_enforce(args: argparse.Namespace) -> int:
 
     Examples
     --------
+    >>> from drepo import execute_enforce
     >>> from argparse import Namespace
     >>> args = Namespace(extensions=None, folder=".", ignore_tabs=False, list_all=False, \
     ...     skip=None, trailing=False, unix=False, windows=False, execute=False)
@@ -158,8 +160,8 @@ def find_repo_issues(  # noqa: C901
 
     Examples
     --------
-    >>> from pathlib import Path
-    >>> folder = Path(".").resolve()
+    >>> from drepo import find_repo_issues, get_root_dir
+    >>> folder = get_root_dir()
     >>> is_clean = find_repo_issues(folder)
     >>> print(is_clean)
     True
@@ -228,8 +230,8 @@ def find_repo_issues(  # noqa: C901
 # %% Script
 if __name__ == "__main__":
     import sys
+
     args = parse_enforce(sys.argv[1:])
-    print(args)
     try:
         rc = execute_enforce(args)
     except Exception as e:

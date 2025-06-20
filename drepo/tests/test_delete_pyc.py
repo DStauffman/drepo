@@ -9,11 +9,9 @@ Notes
 # %% Imports
 import contextlib
 import os
-from pathlib import Path
 import unittest
 
-from dstauffman import write_text_file
-from slog import capture_output
+from slog import capture_output, write_text_file
 
 import drepo as dr
 
@@ -47,7 +45,7 @@ class Test_delete_pyc(unittest.TestCase):
     """
 
     def setUp(self) -> None:
-        self.fold1 = Path(__file__).resolve().parent
+        self.fold1 = dr.get_root_dir().joinpath("tests")
         self.file1 = self.fold1 / "temp_file.pyc"
         self.fold2 = self.fold1 / "temp_sub_dir"
         self.file2 = self.fold2 / "temp_file2.pyc"
