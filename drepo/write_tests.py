@@ -81,7 +81,7 @@ def execute_write_tests(args: argparse.Namespace) -> int:
     folder    = Path(args.folder).resolve()
     output    = Path(args.output).resolve()
     author    = args.author
-    exclude   = tuple(Path(x) for x in args.exclude)
+    exclude   = tuple(Path(x) for x in args.exclude) if args.exclude is not None else None
     recursive = args.recursive
     repo_subs = {s.split(",")[0]: s.split(",")[1] for s in args.subs} if args.subs is not None else None
     add_class = args.classification
