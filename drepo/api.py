@@ -1,4 +1,4 @@
-"""High level API functions."""
+"""High level API functions."""  # pylint: disable=redefined-outer-name
 
 # %% Imports
 import argparse
@@ -82,7 +82,7 @@ def print_help(help_file: Path | None = None) -> int:
     if not help_file.is_file():
         print(f'Warning: help file at "{help_file}" was not found.')
         return ReturnCodes.bad_help_file
-    with open(help_file, encoding="utf-8") as file:
+    with help_file.open(encoding="utf-8") as file:
         text = file.read()
     print(text)
     return ReturnCodes.clean
@@ -90,7 +90,8 @@ def print_help(help_file: Path | None = None) -> int:
 
 # %% Functions - print_version
 def print_version() -> int:
-    r"""Prints the version of the library.
+    r"""
+    Prints the version of the library.
 
     Returns
     -------
@@ -106,7 +107,7 @@ def print_version() -> int:
     try:
         version = ".".join(str(x) for x in version_info)
         return_code = ReturnCodes.clean
-    except Exception:
+    except Exception:  # pylint: disable=broad-exception-caught  # noqa: BLE001
         version = "unknown"
         return_code = ReturnCodes.bad_version
     print(version)
@@ -174,7 +175,7 @@ def parse_version(input_args: list[str]) -> argparse.Namespace:
 
 
 # %% Functions - execute_help
-def execute_help(args: argparse.Namespace) -> int:  # pylint: disable=unused-argument
+def execute_help(args: argparse.Namespace) -> int:  # pylint: disable=unused-argument  # noqa: ARG001
     r"""
     Executes the help command.
 
@@ -200,7 +201,7 @@ def execute_help(args: argparse.Namespace) -> int:  # pylint: disable=unused-arg
 
 
 # %% Functions - execute_version
-def execute_version(args: argparse.Namespace) -> int:  # pylint: disable=unused-argument
+def execute_version(args: argparse.Namespace) -> int:  # pylint: disable=unused-argument  # noqa: ARG001
     r"""
     Executes the version command.
 
@@ -229,10 +230,7 @@ def execute_version(args: argparse.Namespace) -> int:  # pylint: disable=unused-
 def parse_wrapper(args: list[str]) -> tuple[str, argparse.Namespace]:
     r"""Wrapper function to parse out the command name from the rest of the arguments."""
     # check for no command option
-    if len(args) >= 1:
-        command = args[0]
-    else:
-        command = "help"
+    command = args[0] if len(args) >= 1 else "help"
     # check for alternative forms of help with the base drepo command
     if command in {"--help", "-h"}:
         command = "help"
@@ -314,7 +312,7 @@ if __name__ == "__main__":
     print(args)
     try:
         rc = execute_help(args)
-    except Exception as e:
+    except Exception as e:  # pylint: disable=broad-exception-caught  # noqa: BLE001
         print(f"Error: {e}")
         sys.exit(ReturnCodes.bad_command)
     else:

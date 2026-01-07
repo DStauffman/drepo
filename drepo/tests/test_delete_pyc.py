@@ -4,6 +4,7 @@ Test file for the `delete_pyc` module of the "drepo" library.
 Notes
 -----
 #.  Written by David C. Stauffer in March 2025.
+
 """
 
 # %% Imports
@@ -66,7 +67,7 @@ class Test_delete_pyc(unittest.TestCase):
         self.assertFalse(self.file2.is_file())
         for this_line in lines:
             self.assertTrue(this_line.startswith('Removing "'))
-            self.assertTrue(this_line.endswith('temp_file.pyc"') or this_line.endswith('temp_file2.pyc"'))
+            self.assertTrue(this_line.endswith(('temp_file.pyc"', 'temp_file2.pyc"')))
 
     def test_not_recursive(self) -> None:
         self.assertTrue(self.file1.is_file())

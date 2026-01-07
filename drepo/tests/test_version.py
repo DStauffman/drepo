@@ -4,6 +4,7 @@ Test file for the `version` module of the "drepo" library.
 Notes
 -----
 #.  Written by David C. Stauffer in March 2025.
+
 """
 
 # %% Imports

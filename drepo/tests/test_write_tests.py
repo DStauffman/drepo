@@ -4,6 +4,7 @@ Test file for the `write_tests` module of the "drepo" library.
 Notes
 -----
 #.  Written by David C. Stauffer in March 2025.
+
 """
 
 # %% Imports
@@ -49,10 +50,12 @@ class Test_write_unit_test_templates(unittest.TestCase):
         self.exclude = self.folder.joinpath("tests")
 
     def test_nominal(self) -> None:
-        with patch("drepo.write_tests.write_text_file") as mock_writer:
-            with patch("drepo.write_tests.setup_dir") as mock_dir:
-                with patch("drepo.write_tests.logger") as mock_logger:
-                    dr.write_unit_test_templates(self.folder, self.output, author=self.author, exclude=self.exclude)
+        with (
+            patch("drepo.write_tests.write_text_file") as mock_writer,
+            patch("drepo.write_tests.setup_dir") as mock_dir,
+            patch("drepo.write_tests.logger") as mock_logger,
+        ):
+            dr.write_unit_test_templates(self.folder, self.output, author=self.author, exclude=self.exclude)
         self.assertEqual(mock_dir.call_count, 1)
         self.assertGreater(mock_logger.log.call_count, 5)
         self.assertEqual(mock_logger.log.call_args_list[0].args[0], LogLevel.L8)

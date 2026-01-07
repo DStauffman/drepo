@@ -4,6 +4,7 @@ Test file for the `enforce` module of the "drepo" library.
 Notes
 -----
 #.  Written by David C. Stauffer in March 2025.
+
 """
 
 # %% Imports
@@ -82,9 +83,8 @@ class Test_parse_enforce(unittest.TestCase):
         self.assertEqual(args, self.expected)
 
     def test_bad_os_combination(self) -> None:
-        with capture_output("err") as ctx:
-            with self.assertRaises(SystemExit):
-                dr.parse_enforce([self.folder, "-w", "-u"])
+        with capture_output("err") as ctx, self.assertRaises(SystemExit):
+            dr.parse_enforce([self.folder, "-w", "-u"])
         stderr = ctx.get_error()
         ctx.close()
         self.assertTrue(stderr.startswith("usage: enforce"))

@@ -4,6 +4,7 @@ Functions related to version history.
 Notes
 -----
 #.  Written by David C. Stauffer in February 2025.
+
 """
 
 # %% Constants

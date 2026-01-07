@@ -1,4 +1,4 @@
-"""Enforces a number of standards for the given repository."""
+"""Enforces a number of standards for the given repository."""  # pylint: disable=redefined-outer-name
 
 # %% Imports
 import argparse
@@ -35,7 +35,7 @@ def parse_enforce(input_args: list[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         prog="enforce",
         description="Enforce consistency in the repo "
-        + "for things like tabs, trailing whitespace, line endings and file execute permissions.",
+        "for things like tabs, trailing whitespace, line endings and file execute permissions.",
     )
 
     parser.add_argument("folder", help="Folder to search for source files")
@@ -120,7 +120,7 @@ def execute_enforce(args: argparse.Namespace) -> int:
 
 
 # %% find_repo_issues
-def find_repo_issues(  # noqa: C901
+def find_repo_issues(
     folder: Path,
     extensions: frozenset[str] | set[str] | tuple[str, ...] | str | None = frozenset((".m", ".py")),
     *,
@@ -171,16 +171,13 @@ def find_repo_issues(  # noqa: C901
     def _is_excluded(path: Path, exclusions: tuple[Path, ...] | None) -> bool:
         if exclusions is None:
             return False
-        for this_exclusion in exclusions:
-            if this_exclusion == path or this_exclusion in path.parents:
-                return True
-        return False
+        return any(this_exclusion == path or this_exclusion in path.parents for this_exclusion in exclusions)
 
     # initialize output
     is_clean = True
 
     if isinstance(extensions, str):
-        extensions = {extensions,}  # fmt: skip
+        extensions = {extensions}  # fmt: skip
     if isinstance(exclusions, Path):
         exclusions = (exclusions,)
 
@@ -197,7 +194,7 @@ def find_repo_issues(  # noqa: C901
             if show_execute and os.access(this_file, os.X_OK):
                 print(f'File: "{this_file}" has execute privileges.')
                 is_clean = False
-            with open(this_file, encoding="utf8", newline="") as file:
+            with this_file.open(encoding="utf8", newline="") as file:
                 bad_lines = False
                 try:
                     lines = file.readlines()
@@ -206,13 +203,7 @@ def find_repo_issues(  # noqa: C901
                     is_clean = False
                 for c, line in enumerate(lines):
                     sline = line.rstrip("\n").rstrip("\r").rstrip("\n")  # for all possible orderings
-                    if check_tabs and line.count("\t") > 0:
-                        if not already_listed:
-                            print(f'Evaluating: "{this_file}"')
-                            already_listed = True
-                            is_clean = False
-                        print(f"    Line {c + 1:03}: " + repr(line))
-                    elif trailing and len(sline) >= 1 and sline[-1] == " ":
+                    if (check_tabs and line.count("\t") > 0) or (trailing and len(sline) >= 1 and sline[-1] == " "):
                         if not already_listed:
                             print(f'Evaluating: "{this_file}"')
                             already_listed = True
@@ -234,7 +225,7 @@ if __name__ == "__main__":
     args = parse_enforce(sys.argv[1:])
     try:
         rc = execute_enforce(args)
-    except Exception as e:
+    except Exception as e:  # pylint: disable=broad-exception-caught  # noqa: BLE001
         print(f"Error: {e}")
         sys.exit(ReturnCodes.bad_command)
     else:

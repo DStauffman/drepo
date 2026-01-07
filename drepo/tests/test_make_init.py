@@ -4,6 +4,7 @@ Test file for the `make_init` module of the "drepo" library.
 Notes
 -----
 #.  Written by David C. Stauffer in March 2025.
+
 """
 
 # %% Imports
@@ -151,7 +152,7 @@ class Test_get_python_definitions(unittest.TestCase):
     def test_overload(self) -> None:
         funcs = dr.get_python_definitions(
             "@overload\ndef fun(x: int, x: Literal[False]) -> int: ...\n\n@overload\ndef fun(x: int, x: Literal[True]) -> float: ...\n"
-            + "\ndef fun(x: int, x: bool = False) -> int | float:\n    pass\n\n"
+            "\ndef fun(x: int, x: bool = False) -> int | float:\n    pass\n\n"
         )
         self.assertEqual(funcs, ["fun"])
 
@@ -184,7 +185,7 @@ class Test_make_python_init(unittest.TestCase):
         self.assertEqual(lines[self.line_num][0 : len(self.text2)], self.text2)
 
     def test_duplicated_funcs(self) -> None:
-        with open(self.filepath, "wt") as file:
+        with self.filepath.open("wt") as file:
             file.write("def Test_print_help():\n    pass\n")
         with capture_output() as ctx:
             text = dr.make_python_init(self.folder2)

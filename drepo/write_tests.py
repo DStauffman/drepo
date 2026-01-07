@@ -1,4 +1,4 @@
-"""Writes template files for unit tests."""
+"""Writes template files for unit tests."""  # pylint: disable=redefined-outer-name
 
 # %% Imports
 import argparse
@@ -198,9 +198,8 @@ def write_unit_test_templates(
             import_text += " as " + _subs[this_repo]
         text += [import_text, "", ""]
         for func in funcs:
-            if func.startswith("_"):
-                func = names[-1][:-3] + "." + func
-            func_name = sub_repo + "." + func if sub_repo else func
+            this_func = names[-1][:-3] + "." + func if func.startswith("_") else func
+            func_name = sub_repo + "." + this_func if sub_repo else this_func
             temp_name = func_name.replace(".", "_")
             text += [f"# %% {func_name}", f"class Test_{temp_name}(unittest.TestCase):", '    r"""']
             text += [f"    Tests the {func_name} function with the following cases:", "        TBD"]
@@ -208,7 +207,7 @@ def write_unit_test_templates(
 
         text += ["# %% Unit test execution", 'if __name__ == "__main__":', "    unittest.main(exit=False)", ""]
         new_file = Path.joinpath(output, "test_" + "_".join(names))
-        logger.log(LogLevel.L8, f'Writing: "{new_file}".')
+        logger.log(LogLevel.L8, 'Writing: "%s".', new_file)
         write_text_file(new_file, "\n".join(text))
 
 
@@ -222,7 +221,7 @@ if __name__ == "__main__":
         activate_logging(log_level)
     try:
         rc = execute_write_tests(args)
-    except Exception as e:
+    except Exception as e:  # pylint: disable=broad-exception-caught  # noqa: BLE001
         print(f"Error: {e}")
         sys.exit(ReturnCodes.bad_command)
     else:

@@ -1,4 +1,4 @@
-"""Delete all the *.pyc files (Python Byte Code) in the specified directory."""
+"""Delete all the *.pyc files (Python Byte Code) in the specified directory."""  # pylint: disable=redefined-outer-name
 
 # %% Imports
 import argparse
@@ -100,7 +100,7 @@ def delete_pyc(folder: Path, recursive: bool = True, *, print_progress: bool = T
         r"""Do the actual file removal."""
         # check for allowable extensions
         # fmt: off
-        assert file.suffix in {".pyc",}
+        assert file.suffix in {".pyc"}
         assert file.is_file()
         # fmt: on
         # remove this file
@@ -127,7 +127,7 @@ if __name__ == "__main__":
     args = parse_delete_pyc(sys.argv[1:])
     try:
         rc = execute_delete_pyc(args)
-    except Exception as e:
+    except Exception as e:  # pylint: disable=broad-exception-caught  # noqa: BLE001
         print(f"Error: {e}")
         sys.exit(ReturnCodes.bad_command)
     else:

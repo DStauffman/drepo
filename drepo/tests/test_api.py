@@ -4,12 +4,11 @@ Test file for the `api` module of the "drepo" library.
 Notes
 -----
 #.  Written by David C. Stauffer in June 2025.
+
 """
 
 # %% Imports
 import unittest
-
-import drepo
 
 
 # %% print_help

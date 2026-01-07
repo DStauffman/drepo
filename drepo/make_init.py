@@ -1,10 +1,10 @@
-"""Build an __init__.py file for the given folder."""
+"""Build an __init__.py file for the given folder."""  # pylint: disable=redefined-outer-name
 
 # %% Imports
 import argparse
 from pathlib import Path
 
-from slog import is_dunder, line_wrap, read_text_file, ReturnCodes, write_text_file
+from slog import line_wrap, read_text_file, ReturnCodes, write_text_file
 
 
 # %% Functions - parse_make_init
@@ -87,7 +87,7 @@ def execute_make_init(args: argparse.Namespace) -> int:
 
 
 # %% Functions - get_python_definitions
-def get_python_definitions(text: str, *, include_private: bool = False) -> list[str]:  # noqa: C901
+def get_python_definitions(text: str, *, include_private: bool = False) -> list[str]:
     r"""
     Get all public class and def names from the text of the file.
 
@@ -95,6 +95,8 @@ def get_python_definitions(text: str, *, include_private: bool = False) -> list[
     ----------
     text : str
         The text of the python file
+    include_private : bool, optional, default is False
+        Whether to include private functions or not
 
     Returns
     -------
@@ -129,7 +131,7 @@ def get_python_definitions(text: str, *, include_private: bool = False) -> list[
             skip_next = True
             continue
         sline = line.strip()
-        if (sline.startswith('r"""') or sline.startswith('"""')) and not sline[3:].endswith('"""'):
+        if sline.startswith(('r"""', '"""')) and not sline[3:].endswith('"""'):
             skip_strs = True
         if line.startswith("class ") and (include_private or not line.startswith("class _")):
             temp = line[len("class ") :].split("(")
@@ -155,6 +157,12 @@ def make_python_init(folder: Path, *, lineup: bool = True, wrap: int = 100, file
     ----------
     folder : str
         Name of folder to process
+    lineup : bool, optional, default is True
+        Whether to line up everything
+    wrap : int, optional, default is 100
+        Character row at which to cause lines to wrap
+    filename : Path, optional
+        When specified, then save the resulting text to the given filename
 
     Returns
     -------
@@ -182,25 +190,23 @@ def make_python_init(folder: Path, *, lineup: bool = True, wrap: int = 100, file
     results = {}
     # Loop through the contained files/folders
     for this_elem in folder.glob("*"):
-        # check if a folder or file
-        if not this_elem.is_dir():
-            # only process source *.py files
-            if this_elem.suffix == ".py":
-                # exclude any existing "__init__.py" file
-                if any((exc in this_elem.parents for exc in exclusions)):
-                    continue
-                # read the contents of the file
-                this_text = read_text_file(this_elem)
-                # get a list of definitions from the text file
-                funcs = get_python_definitions(this_text)
-                # append these results (if not empty)
-                if len(funcs) > 0:
-                    results[this_elem.stem] = funcs
+        # check if a folder or file and only process source *.py files
+        if not this_elem.is_dir() and this_elem.suffix == ".py":
+            # exclude any existing "__init__.py" file
+            if any(exc in this_elem.parents for exc in exclusions):
+                continue
+            # read the contents of the file
+            this_text = read_text_file(this_elem)
+            # get a list of definitions from the text file
+            funcs = get_python_definitions(this_text)
+            # append these results (if not empty)
+            if len(funcs) > 0:
+                results[this_elem.stem] = funcs
     # check for duplicates
     all_funcs = [func for v in results.values() for func in v]
     if len(all_funcs) != len(set(all_funcs)):
         print(f"Uniqueness Problem: {len(all_funcs)} functions, but only {len(set(all_funcs))} unique functions")
-    dups = set((x for x in all_funcs if all_funcs.count(x) > 1))
+    dups = {x for x in all_funcs if all_funcs.count(x) > 1}
     if dups:
         print("Duplicated functions:")
         print(dups)
@@ -233,7 +239,7 @@ if __name__ == "__main__":
     args = parse_make_init(sys.argv[1:])
     try:
         rc = execute_make_init(args)
-    except Exception as e:
+    except Exception as e:  # pylint: disable=broad-exception-caught  # noqa: BLE001
         print(f"Error: {e}")
         sys.exit(ReturnCodes.bad_command)
     else:
