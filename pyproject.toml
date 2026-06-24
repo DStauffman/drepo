@@ -4,11 +4,11 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "drepo"
-version = "0.2.0"
+version = "0.3.0"
 description = "Python utilities for supporting repositories"
 readme = "README.md"
 dependencies = ["slog"]
-requires-python = ">=3.10,<4.0"
+requires-python = ">=3.11,<4.0"
 authors = [
   {name = "David C. Stauffer", email = "dstauffman@yahoo.com"},
 ]
@@ -23,11 +23,11 @@ classifiers = [
     "Intended Audience :: Science/Research",
     "Natural Language :: English",
     "Programming Language :: Python :: 3",
-    "Programming Langauge :: Python :: 3.10",
     "Programming Langauge :: Python :: 3.11",
     "Programming Langauge :: Python :: 3.12",
     "Programming Langauge :: Python :: 3.13",
     "Programming Langauge :: Python :: 3.14",
+    "Programming Langauge :: Python :: 3.15",
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Typing :: Typed",
 ]
@@ -42,6 +42,9 @@ Changelog = "https://github.com/DStauffman/drepo/blob/main/CHANGELOG.md"
 
 [project.scripts]
 drepo = "drepo.__main__:main"
+
+[tool.setuptools.packages.find]
+where = ["drepo"]
 
 [tool.setuptools.package-data]
 drepo = ["pyproject.toml", "README.md"]
@@ -91,18 +94,6 @@ directory = "coverage_html_report"
 [tool.coverage.xml]
 output = "coverage_html_report/coverage.xml"
 
-[tool.isort]
-py_version = 313
-profile = "black"
-line_length = 128
-combine_as_imports = true
-force_sort_within_sections = true
-case_sensitive = true
-force_alphabetical_sort_within_sections = true
-skip_glob = ["__init__.py", "*/__init__.py"]
-sections = ["FUTURE", "STDLIB", "THIRDPARTY", "SLOG", "FIRSTPARTY", "LOCALFOLDER"]
-known_slog = ["slog"]
-
 [tool.mypy]
 show_error_codes       = true
 warn_return_any        = true
@@ -131,16 +122,11 @@ disable = ["C0103", "C0301", "C0411", "C0414", "E0401", "E0601", "E0606", "E0611
 enable = ["I0021"]
 ignore-paths = "^(.*[/\\\\]|)tests[/\\\\]test_.*$"
 
-[tool.pydocstyle]
-inherit = false
-convention = "numpy"
-add-ignore = ["D102", "D105", "D204"]
-
 [tool.ruff]
 include = ["pyproject.toml", "drepo/**/*.py"]
 line-length = 128
 indent-width = 4
-target-version = "py310"
+target-version = "py311"
 
 [tool.ruff.lint]
 select = ["ALL"]
@@ -150,10 +136,9 @@ ignore = [
     "D203",  # one blank line required before class docstring
     "D212",  # multiline docstring summary should start at the first line
     "D401",  # first line of docstring should be in imperative mood
-    "E501",  # line too long, (use black to manage this)
     "B028",  # no explicit stacklevel keyword argument
     "B905",  # zip without an explicit strict parameter
-    "I001",  # Import block is un-sorted or un-formatted (use isort to manage this)
+    "E501",  # line too long, (use black/ruff format to manage this)
     "S101",  # Use of assert
     "T201",  # `print` found
     "ANN401",  # dynamically typed expressions (Any) are disallowed in kwargs
@@ -184,11 +169,21 @@ ignore = [
     "UP015",  # Unnecessary mode argument
 ]
 
+[tool.ruff.lint.isort]
+combine-as-imports = true
+force-sort-within-sections = true
+order-by-type = false
+section-order = ["future", "standard-library", "third-party", "slog", "first-party", "local-folder"]
+
+[tool.ruff.lint.isort.sections]
+# Group all nubs/slog imports into a separate section.
+"slog" = ["slog"]
+
 [tool.ruff.lint.mccabe]
 max-complexity = 30
 
 [tool.ruff.lint.per-file-ignores]
-"drepo/**/__init__.py" = ["F401"]
+"drepo/**/__init__.py" = ["F401", "I001"]
 "drepo/tests/*" = ["D102", "D205", "D400", "D415", "N801", "N802", "N806", "ARG002", "ARG005", "PIE790", "RUF059", "SLF001"]
 
 [tool.ruff.format]
@@ -201,6 +196,10 @@ line-ending = "auto"
 python-version = "3.14"
 root = ["./drepo"]
 
+[tool.ty.analysis]
+# Disable support for `type: ignore` comments, so that they only apply to mypy
+respect-type-ignore-comments = false
+
 # Strict rules for source code
 [[tool.ty.overrides]]
 include = ["drepo"]
@@ -208,11 +207,15 @@ include = ["drepo"]
 [tool.ty.overrides.rules]
 invalid-argument-type = "ignore"
 invalid-assignment = "ignore"
+invalid-key = "ignore"
 invalid-return-type = "ignore"
 invalid-type-form = "ignore"
 missing-argument = "ignore"
+missing-typed-dict-key = "ignore"
 no-matching-overload = "ignore"
-possibly-missing-import = "ignore"
+not-iterable = "ignore"
+not-subscriptable = "ignore"
+parameter-already-assigned = "ignore"
 unknown-argument = "ignore"
 unresolved-attribute = "ignore"
 unresolved-import = "ignore"
@@ -223,3 +226,6 @@ include = ["**/tests/test_*.py"]
 
 [tool.ty.overrides.rules]
 unresolved-import = "ignore"
+
+[tool.uv.sources]
+slog = { path = "../slog" }

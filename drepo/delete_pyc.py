@@ -100,7 +100,7 @@ def delete_pyc(folder: Path, recursive: bool = True, *, print_progress: bool = T
         r"""Do the actual file removal."""
         # check for allowable extensions
         # fmt: off
-        assert file.suffix in {".pyc"}
+        assert file.suffix == ".pyc"
         assert file.is_file()
         # fmt: on
         # remove this file
