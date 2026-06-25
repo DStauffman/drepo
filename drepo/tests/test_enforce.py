@@ -134,13 +134,13 @@ class Test_execute_enforce(unittest.TestCase):
 
     def test_windows(self, mocker: Mock) -> None:
         self.args.windows = True
-        self.patch_args["check_eol"] = "\r\n"
+        self.patch_args["check_eol"] = "\r\n"  # ty: ignore[invalid-assignment]
         dr.execute_enforce(self.args)
         mocker.assert_called_once_with(**self.patch_args)
 
     def test_unix(self, mocker: Mock) -> None:
         self.args.unix = True
-        self.patch_args["check_eol"] = "\n"
+        self.patch_args["check_eol"] = "\n"  # ty: ignore[invalid-assignment]
         dr.execute_enforce(self.args)
         mocker.assert_called_once_with(**self.patch_args)
 
@@ -152,7 +152,7 @@ class Test_execute_enforce(unittest.TestCase):
 
     def test_extensions(self, mocker: Mock) -> None:
         self.args.extensions = ["f90"]
-        self.patch_args["extensions"] = ["f90"]
+        self.patch_args["extensions"] = ["f90"]  # ty: ignore[invalid-assignment]
         dr.execute_enforce(self.args)
         mocker.assert_called_once_with(**self.patch_args)
 

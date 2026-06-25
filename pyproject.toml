@@ -194,38 +194,11 @@ line-ending = "auto"
 
 [tool.ty.environment]
 python-version = "3.14"
-root = ["./drepo"]
+root = [".", "../slog"]
 
 [tool.ty.analysis]
 # Disable support for `type: ignore` comments, so that they only apply to mypy
 respect-type-ignore-comments = false
-
-# Strict rules for source code
-[[tool.ty.overrides]]
-include = ["drepo"]
-
-[tool.ty.overrides.rules]
-invalid-argument-type = "ignore"
-invalid-assignment = "ignore"
-invalid-key = "ignore"
-invalid-return-type = "ignore"
-invalid-type-form = "ignore"
-missing-argument = "ignore"
-missing-typed-dict-key = "ignore"
-no-matching-overload = "ignore"
-not-iterable = "ignore"
-not-subscriptable = "ignore"
-parameter-already-assigned = "ignore"
-unknown-argument = "ignore"
-unresolved-attribute = "ignore"
-unresolved-import = "ignore"
-
-# Relax rules for test files
-[[tool.ty.overrides]]
-include = ["**/tests/test_*.py"]
-
-[tool.ty.overrides.rules]
-unresolved-import = "ignore"
 
 [tool.uv.sources]
 slog = { path = "../slog" }
